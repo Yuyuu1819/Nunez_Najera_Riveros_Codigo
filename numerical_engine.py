@@ -1,61 +1,96 @@
 import numpy as np
 import time
 
-# Convert text function to math function (safe to work with yk)
+
 def safe_function(function_text):
     """
-    Convertimos textito como:
-    sin(x) + x**2
-
-    en una función matemática segura usando numpy.
+    Convierte texto como 'sin(x) + x**2' en una función matemática
+    segura usando numpy. Solo permite operaciones matemáticas básicas.
+    Lanza ValueError si la expresión es inválida o usa nombres no permitidos.
     """
-
-    # Funciones permitidas
     allowed_names = {
-        "x": 0,
-        "sin": np.sin,
-        "cos": np.cos,
-        "tan": np.tan,
-        "exp": np.exp,
+        "x":    0,
+        "sin":  np.sin,
+        "cos":  np.cos,
+        "tan":  np.tan,
+        "exp":  np.exp,
         "sqrt": np.sqrt,
-        "log": np.log,
-        "pi": np.pi,
-        "e": np.e
+        "log":  np.log,
+        "log2": np.log2,
+        "log10":np.log10,
+        "abs":  np.abs,
+        "pi":   np.pi,
+        "e":    np.e,
     }
 
-    # Regresa una función evaluable
-    return lambda x: eval(function_text, {"__builtins__": {}}, {**allowed_names, "x": x})
+    # Validar que compile antes de devolver el lambda
+    try:
+        compile(function_text, "<string>", "eval")
+    except SyntaxError as err:
+        raise ValueError(f"Sintaxis inválida: {err}")
 
-# SIMPSON 1/3 METHOD
+    def f(x):
+        try:
+            return float(eval(function_text,
+                              {"__builtins__": {}},
+                              {**allowed_names, "x": x}))
+        except ZeroDivisionError:
+            return float("nan")
+        except Exception as err:
+            raise ValueError(f"Error al evaluar f(x): {err}")
+
+    return f
+
+
+# ── Simpson 1/3 Simple (un solo par de subintervalos, n=2) ──────────────────
+def simpson_simple(f, a, b):
+    """
+    Aplica Simpson 1/3 básico sobre [a, b] usando solo 3 puntos:
+    x0=a, x1=(a+b)/2, x2=b.
+
+    Resultado = (b-a)/6 * [f(a) + 4*f((a+b)/2) + f(b)]
+
+    Retorna (resultado, tiempo_us).
+    """
+    t0 = time.perf_counter()
+
+    h  = (b - a) / 2.0
+    x0, x1, x2 = a, (a + b) / 2.0, b
+    result = (h / 3.0) * (f(x0) + 4.0 * f(x1) + f(x2))
+
+    t1 = time.perf_counter()
+    return result, (t1 - t0) * 1_000_000
+
+
+# ── Simpson 1/3 Compuesto (n subintervalos, n par) ──────────────────────────
 def simpson_one_third(f, a, b, n):
     """
-    Calculamos la integral usando Simpson 1/3 compuesto.
+    Aplica Simpson 1/3 Compuesto sobre [a, b] con n subintervalos (n PAR).
+
+    Patrón de coeficientes: 1 - 4 - 2 - 4 - 2 - ... - 4 - 1
+    Error global: O(h^4)
+
+    Retorna (resultado, tiempo_us).
+    Lanza ValueError si n es impar o <= 0.
     """
-
-    # Simpson requiere n PAR
+    if n <= 0:
+        raise ValueError("n debe ser un entero positivo.")
     if n % 2 != 0:
-        raise ValueError("n debe ser un número PAR.")
+        raise ValueError("n debe ser un número PAR para Simpson 1/3.")
 
-    start_time = time.perf_counter()
+    t0 = time.perf_counter()
 
-    h = (b - a) / n
+    h     = (b - a) / n
+    total = f(a) + f(b)                    # extremos: coeficiente 1
 
-    # Sumatoria
-    total = f(a) + f(b)
-
-    # Términos impares
     for i in range(1, n):
-        x = a + i * h
-
+        xi = a + i * h
         if i % 2 == 0:
-            total += 2 * f(x)
+            total += 2.0 * f(xi)           # nodos pares: coeficiente 2
         else:
-            total += 4 * f(x)
+            total += 4.0 * f(xi)           # nodos impares: coeficiente 4
 
-    result = (h / 3) * total
+    result = (h / 3.0) * total
 
-    end_time = time.perf_counter()
-
-    execution_time = (end_time - start_time) * 1_000_000
-
-    return result, execution_time
+    t1 = time.perf_counter()
+    return result, (t1 - t0) * 1_000_000

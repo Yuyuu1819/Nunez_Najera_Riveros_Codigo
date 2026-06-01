@@ -24,11 +24,11 @@ RED = "#C75C5C"         # Tono de alerta para errores en la gráfica
 PLOT_BG = "#152544"     # Fondo interno personalizado para el lienzo del gráfico
 
 class SimpsonApp(tk.Tk):
-    """
-    CLASE CONTROLADORA DE LA INTERFAZ GRÁFICA (GUI)
-    ¿Qué hace? Gestiona la ventana de la aplicación, dibuja los controles visuales,
-    recibe los datos del usuario, llama a las funciones matemáticas y refresca la gráfica.
-    """
+    
+    #CLASE CONTROLADORA DE LA INTERFAZ GRÁFICA (GUI)
+    #Gestiona la ventana de la aplicación, dibuja los controles visuales,
+    #recibe los datos del usuario, llama a las funciones matemáticas y refresca la gráfica.
+    
     def __init__(self):
         super().__init__()
         self.title("Integración Numérica — Método de Simpson 1/3")
@@ -53,21 +53,21 @@ class SimpsonApp(tk.Tk):
         self._center_window(1150, 740)
 
     def _center_window(self, w, h):
-        """
-        CÁLCULO GEOMÉTRICO DE POSICIONAMIENTO
-        Mide el tamaño del monitor del usuario y calcula las coordenadas (x, y) 
-        para que la ventana aparezca perfectamente centrada al abrirse.
-        """
+        
+        #CÁLCULO GEOMÉTRICO DE POSICIONAMIENTO
+        #Mide el tamaño del monitor del usuario y calcula las coordenadas (x, y) 
+        #para que la ventana aparezca perfectamente centrada al abrirse.
+        
         self.update_idletasks()
         sw = self.winfo_screenwidth()
         sh = self.winfo_screenheight()
         self.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
 
     def _build_layout(self):
-        """
-        ARQUITECTURA DE CONTENEDORES (Marcos de Trabajo)
-        Divide la interfaz en tres bloques base: Barra Superior, Panel de Entrada y Área de Gráfica.
-        """
+        
+        #ARQUITECTURA DE CONTENEDORES 
+        #Divide la interfaz en tres bloques base: Barra Superior, Panel de Entrada y Área de Gráfica.
+        
         # 1. Barra de Título Superior 
         top = tk.Frame(self, bg=ACCENT, height=52)
         top.pack(fill="x")
@@ -96,10 +96,10 @@ class SimpsonApp(tk.Tk):
         self._build_graph_panel(right)
 
     def _build_left_panel(self, parent):
-        """
-        CONSTRUCCIÓN DE ELEMENTOS DE CONTROL E INFORMACIÓN
-        Genera los inputs interactivos, el botón principal y las tarjetas informativas.
-        """
+        
+        #CONSTRUCCIÓN DE ELEMENTOS DE CONTROL E INFORMACIÓN
+        #Genera los inputs interactivos, el botón principal y las tarjetas informativas.
+        
         sec = tk.Frame(parent, bg=PANEL)
         sec.pack(fill="x", padx=16, pady=(20, 0))
 
@@ -138,12 +138,7 @@ class SimpsonApp(tk.Tk):
             text="Calcular",
             font=("Arial", 11, "bold"),
             bg=ACCENT,
-            fg="black",
-            activebackground="#C98A93", # Color cuando el usuario hace clic sobre él
-            activeforeground="black",
-            relief="raised",
-            bd=2,
-            cursor="hand2",            # Cambia el puntero del mouse a una mano interactiva
+            
             command=self._calcular     # Ejecuta la función _calcular() al ser presionado
         )
         btn.pack(fill="x", padx=16, ipady=8)
@@ -182,11 +177,11 @@ class SimpsonApp(tk.Tk):
         self._lbl_diff.pack(anchor="w", padx=16)
 
     def _make_result_card(self, parent, titulo, subtitulo, color):
-        """
-        FÁBRICA DE TARJETAS ESTÉTICAS (Cards UI)
-        Ensambla un pequeño bloque visual con bordes de color personalizados para 
-        mostrar el valor de la integral y el tiempo que tardó la computadora en calcularlo.
-        """
+        
+        #FÁBRICA DE TARJETAS ESTÉTICAS 
+        #Ensambla un pequeño bloque visual con bordes de color personalizados para 
+        #mostrar el valor de la integral y el tiempo que tardó la computadora en calcularlo.
+        
         card = tk.Frame(parent, bg=CARD, bd=0)
         card.pack(fill="x")
 
@@ -211,11 +206,11 @@ class SimpsonApp(tk.Tk):
         return {"val": lbl_val, "time": lbl_time, "sub": inner.winfo_children()[1]}
 
     def _build_graph_panel(self, parent):
-        """
-        INCRUSTACIÓN NATIVA DE MATPLOTLIB
-        Prepara el contenedor y los ejes cartesianos de Matplotlib y los adapta
-        dentro de la arquitectura de ventanas de Tkinter.
-        """
+       
+        #INCRUSTACIÓN NATIVA DE MATPLOTLIB
+        #Prepara el contenedor y los ejes cartesianos de Matplotlib y los adapta
+        #dentro de la arquitectura de ventanas de Tkinter.
+        
         tk.Label(parent, text="Visualización",
                  font=("Segoe UI", 11, "bold"),
                  bg=BG, fg=WHITE).pack(anchor="w", pady=(0, 6))
@@ -226,7 +221,7 @@ class SimpsonApp(tk.Tk):
         self._ax.set_facecolor(PLOT_BG)
         self._ax.tick_params(colors=OFFWHITE)
         
-        # Coloreado personalizado de los bordes (espinas) del gráfico
+        # Coloreado personalizado de los bordes del gráfico
         for spine in self._ax.spines.values():
             spine.set_color("#2D4A72")
         self._ax.set_xlabel("x", color=OFFWHITE)
@@ -240,14 +235,14 @@ class SimpsonApp(tk.Tk):
         self._canvas = canvas
 
     def _calcular(self):
-        """
-        MÓDULO DE VALIDACIÓN Y CONTROLADOR DE CÁLCULO
-        Extrae la información ingresada por el usuario en la interfaz gráfica, 
-        la valida exhaustivamente y gatilla las operaciones matemáticas.
-        """
+        
+        #MÓDULO DE VALIDACIÓN Y CONTROLADOR DE CÁLCULO
+        #Extrae la información ingresada por el usuario en la interfaz gráfica, 
+        #la valida exhaustivamente y gatilla las operaciones matemáticas.
+        
         # 1. VALIDACIÓN GENERAL DE CONVERSIÓN DE TIPOS
         # Extrae las cadenas de texto del diccionario y las intenta transformar a variables numéricas.
-        # ¿Por qué se valida? Evita caídas de ejecución si el usuario deja campos vacíos o introduce letras.
+        # Evita caídas de ejecución si el usuario deja campos vacíos o introduce letras.
         try:
             expr = list(self._entries.values())[0].get().strip()
             a    = float(list(self._entries.values())[1].get())
@@ -317,10 +312,10 @@ class SimpsonApp(tk.Tk):
         self._plot(f, a, b, n, expr, res_simple, res_comp)
 
     def _plot(self, f, a, b, n, expr, res_simple, res_comp):
-        """
-        DIBUJO DINÁMICO DE CURVAS, PARÁBOLAS Y ÁREAS DE INTEGRACIÓN
-        Limpia los trazos anteriores y gráfica en tiempo real el comportamiento del método numérico.
-        """
+        
+        #DIBUJO DINÁMICO DE CURVAS, PARÁBOLAS Y ÁREAS DE INTEGRACIÓN
+        #Limpia los trazos anteriores y gráfica en tiempo real el comportamiento del método numérico.
+       
         ax = self._ax
         ax.clear()                  # Borrado total y absoluto de trazos o líneas previas en el eje
         ax.set_facecolor(PLOT_BG)   # Re-establece el color de fondo nocturno

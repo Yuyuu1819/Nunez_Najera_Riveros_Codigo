@@ -42,7 +42,7 @@ def safe_function(function_text):
     return f
 
 
-# ── Simpson 1/3 Simple (un solo par de subintervalos, n=2) ──────────────────
+# Simpson 1/3 Simple (un solo par de subintervalos, n=2) 
 def simpson_simple(f, a, b):
     """
     Aplica Simpson 1/3 básico sobre [a, b] usando solo 3 puntos:
@@ -62,7 +62,7 @@ def simpson_simple(f, a, b):
     return result, (t1 - t0) * 1_000_000
 
 
-# ── Simpson 1/3 Compuesto (n subintervalos, n par) ──────────────────────────
+#  Simpson 1/3 Compuesto (n subintervalos, n par) 
 def simpson_one_third(f, a, b, n):
     """
     Aplica Simpson 1/3 Compuesto sobre [a, b] con n subintervalos (n PAR).
